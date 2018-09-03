@@ -1,0 +1,42 @@
+/*
+ * Copyright (C) 2018 Tobias Raatiniemi
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, version 2 of the License.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+bintray {
+    user = System.getenv('BINTRAY_USER')
+    key = System.getenv('BINTRAY_KEY')
+
+    configurations = ['archives']
+
+    pkg {
+        repo = 'maven'
+        name = 'sonar-plugin-core'
+        userOrg = user
+        licenses = ['LGPL-3.0']
+        labels = ['sonarqube']
+
+        websiteUrl = 'https://gitlab.com/raatiniemi/sonar-plugin-core'
+        issueTrackerUrl = 'https://gitlab.com/raatiniemi/sonar-plugin-core/issues'
+        vcsUrl = 'https://gitlab.com/raatiniemi/sonar-plugin-core.git'
+
+        publicDownloadNumbers = true
+
+        version {
+            name = project.version
+            released = new Date()
+            vcsTag = project.version
+        }
+    }
+}

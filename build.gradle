@@ -8,6 +8,7 @@ plugins {
     id 'java'
     id 'com.cinnober.gradle.semver-git' version '2.3.1'
     id 'org.sonarqube' version '2.6.2'
+    id 'com.jfrog.bintray' version '1.8.4'
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -31,3 +32,4 @@ dependencies {
 
 apply from: 'jacoco.gradle'
 apply from: 'sonarqube.gradle'
+apply from: 'bintray.gradle'
