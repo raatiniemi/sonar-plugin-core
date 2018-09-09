@@ -21,7 +21,7 @@ sonarqube {
         properties['sonar.login'] = System.getenv('SONAR_LOGIN')
 
         properties['sonar.projectKey'] = 'me.raatiniemi.sonar:core'
-        properties['sonar.projectName'] = 'Sonar plugin core'
+        properties['sonar.projectName'] = 'sonar-plugin-core'
         properties['sonar.projectVersion'] = "${project.version}"
 
         properties['sonar.sourceEncoding'] = 'UTF-8'
