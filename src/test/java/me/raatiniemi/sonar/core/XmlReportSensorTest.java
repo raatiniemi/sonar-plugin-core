@@ -17,15 +17,14 @@
 
 package me.raatiniemi.sonar.core;
 
+import me.raatiniemi.sonar.core.internal.FileSystemHelpers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
@@ -55,14 +54,14 @@ public class XmlReportSensorTest {
     private final MapSettings settings = new MapSettings();
 
     private SensorContextTester sensorContext;
+    private FileSystemHelpers helpers;
     private SampleXmlReportSensor sensor;
-    private DefaultInputFile inputFile;
 
     @Before
     public void setUp() {
         sensorContext = SensorContextTester.create(temporaryFolder.getRoot());
+        helpers = FileSystemHelpers.create(sensorContext);
         sensor = SampleXmlReportSensor.create(settings.asConfig());
-        inputFile = createFileForLanguage();
     }
 
     private void createReportFile(@Nonnull String relativePath) {
@@ -78,21 +77,10 @@ public class XmlReportSensorTest {
         }
     }
 
-    @Nonnull
-    private DefaultInputFile createFileForLanguage() {
-        return new TestInputFileBuilder(sensorContext.module().key(), "basename")
-                .initMetadata("1")
-                .setLanguage("objc")
-                .build();
-    }
-
-    private void addFileToFileSystem(@Nonnull InputFile inputFile) {
-        sensorContext.fileSystem().add(inputFile);
-    }
-
     @Test
     public void execute_withDefaultReportPath() {
-        addFileToFileSystem(inputFile);
+        DefaultInputFile inputFile = helpers.createFile("basename", "objc");
+        helpers.addToFileSystem(inputFile);
         createReportFile("report.xml");
 
         sensor.execute(sensorContext);
@@ -105,7 +93,8 @@ public class XmlReportSensorTest {
     @Test
     public void execute_withReportPath() {
         settings.setProperty("report.path.key", "sonar-report.xml");
-        addFileToFileSystem(inputFile);
+        DefaultInputFile inputFile = helpers.createFile("basename", "objc");
+        helpers.addToFileSystem(inputFile);
         createReportFile("sonar-report.xml");
 
         sensor.execute(sensorContext);
