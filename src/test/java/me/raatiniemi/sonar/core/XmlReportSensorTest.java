@@ -29,6 +29,8 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -37,6 +39,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -44,6 +47,9 @@ import static org.junit.Assert.fail;
 public class XmlReportSensorTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Rule
+    public LogTester logTester = new LogTester();
 
     private final Path resourcePath = Paths.get("src", "test", "resources");
     private final MapSettings settings = new MapSettings();
@@ -92,6 +98,8 @@ public class XmlReportSensorTest {
         sensor.execute(sensorContext);
 
         assertNotNull(sensorContext.measure(inputFile.key(), CoreMetrics.COMPLEXITY_KEY));
+        assertThat(logTester.logs(LoggerLevel.DEBUG))
+                .contains("Found no report path for configuration key report.path.key, using default path");
     }
 
     @Test
@@ -103,5 +111,7 @@ public class XmlReportSensorTest {
         sensor.execute(sensorContext);
 
         assertNotNull(sensorContext.measure(inputFile.key(), CoreMetrics.COMPLEXITY_KEY));
+        assertThat(logTester.logs(LoggerLevel.DEBUG))
+                .contains("Found report path for configuration key report.path.key");
     }
 }

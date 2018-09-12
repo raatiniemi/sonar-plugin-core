@@ -54,11 +54,21 @@ public abstract class XmlReportSensor implements Sensor {
 
     @Nonnull
     protected final Stream<File> collectAvailableReports(@Nonnull File projectDirectoryPath) {
-        Optional<String> value = configuration.get(getReportPathKey());
-        String reportPath = value.orElse(getDefaultReportPath());
-
         ReportPatternFinder reportFinder = ReportFinder.create(projectDirectoryPath);
-        return reportFinder.findReportsMatching(reportPath).stream();
+        return reportFinder.findReportsMatching(reportPath()).stream();
+    }
+
+    @Nonnull
+    private String reportPath() {
+        String reportPathKey = getReportPathKey();
+        Optional<String> value = configuration.get(reportPathKey);
+        if (value.isPresent()) {
+            LOGGER.debug("Found report path for configuration key {}", reportPathKey);
+            return value.get();
+        }
+
+        LOGGER.debug("Found no report path for configuration key {}, using default path", reportPathKey);
+        return getDefaultReportPath();
     }
 
     @Nonnull
