@@ -22,6 +22,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -30,12 +32,16 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 public class ReportFinderTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Rule
+    public LogTester logTester = new LogTester();
 
     private ReportPatternFinder reportFinder;
 
@@ -61,6 +67,10 @@ public class ReportFinderTest {
         Set<File> actual = reportFinder.findReportsMatching("*");
 
         assertTrue(actual.isEmpty());
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find reports matching * in /tmp/do-not-exists"
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Report directory do not exsists /tmp/do-not-exists");
     }
 
     @Test
@@ -68,6 +78,11 @@ public class ReportFinderTest {
         Set<File> actual = reportFinder.findReportsMatching("*");
 
         assertTrue(actual.isEmpty());
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find reports matching * in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "No report(s) matching * was found in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 
     @Test
@@ -77,6 +92,11 @@ public class ReportFinderTest {
         Set<File> actual = reportFinder.findReportsMatching("bazquz.xml");
 
         assertTrue(actual.isEmpty());
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find reports matching bazquz.xml in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "No report(s) matching bazquz.xml was found in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 
     @Test
@@ -88,6 +108,11 @@ public class ReportFinderTest {
         Set<File> actual = reportFinder.findReportsMatching("bazquz.xml");
 
         assertEquals(expected, actual);
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find reports matching bazquz.xml in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "Found 1 report(s) matching bazquz.xml in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 
     @Test
@@ -99,6 +124,11 @@ public class ReportFinderTest {
         Set<File> actual = reportFinder.findReportsMatching("*.xml");
 
         assertEquals(expected, actual);
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find reports matching *.xml in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "Found 2 report(s) matching *.xml in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 
     @Test
@@ -108,6 +138,10 @@ public class ReportFinderTest {
         Optional<File> actual = reportFinder.findReportMatching("*");
 
         assertFalse(actual.isPresent());
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find report matching * in /tmp/do-not-exists"
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Report directory do not exsists /tmp/do-not-exists");
     }
 
     @Test
@@ -115,6 +149,11 @@ public class ReportFinderTest {
         Optional<File> actual = reportFinder.findReportMatching("*");
 
         assertFalse(actual.isPresent());
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find report matching * in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "No report(s) matching * was found in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 
     @Test
@@ -124,6 +163,11 @@ public class ReportFinderTest {
         Optional<File> actual = reportFinder.findReportMatching("bazquz.xml");
 
         assertFalse(actual.isPresent());
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find report matching bazquz.xml in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "No report(s) matching bazquz.xml was found in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 
     @Test
@@ -134,6 +178,11 @@ public class ReportFinderTest {
         Optional<File> actual = reportFinder.findReportMatching("bazquz.xml");
 
         assertEquals(expected, actual);
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find report matching bazquz.xml in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "Found 1 report(s) matching bazquz.xml in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 
     @Test
@@ -144,5 +193,10 @@ public class ReportFinderTest {
         Optional<File> actual = reportFinder.findReportMatching("*.xml");
 
         assertEquals(expected, actual);
+        assertThat(logTester.logs(LoggerLevel.DEBUG)).containsOnly(
+                "Trying to find report matching *.xml in " + temporaryFolder.getRoot().getAbsolutePath(),
+                "Found 2 report(s) matching *.xml in " + temporaryFolder.getRoot().getAbsolutePath()
+        );
+        assertThat(logTester.logs(LoggerLevel.WARN)).isEmpty();
     }
 }
