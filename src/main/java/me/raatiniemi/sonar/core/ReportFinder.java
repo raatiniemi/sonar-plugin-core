@@ -17,6 +17,8 @@
 package me.raatiniemi.sonar.core;
 
 import org.apache.tools.ant.DirectoryScanner;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import javax.annotation.Nonnull;
 import java.io.File;
@@ -31,6 +33,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public final class ReportFinder implements ReportPatternFinder {
+    private static final Logger LOGGER = Loggers.get(ReportFinder.class);
+
     private final File reportDirectory;
 
     private ReportFinder(@Nonnull File reportDirectory) {
@@ -44,12 +48,21 @@ public final class ReportFinder implements ReportPatternFinder {
 
     @Nonnull
     public Set<File> findReportsMatching(@Nonnull String pattern) {
+        LOGGER.debug("Trying to find reports matching {} in {}", pattern, getReportDirectoryPath());
+
         return findMatching(pattern)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Nonnull
+    private String getReportDirectoryPath() {
+        return reportDirectory.getAbsolutePath();
+    }
+
+    @Nonnull
     public Optional<File> findReportMatching(@Nonnull String pattern) {
+        LOGGER.debug("Trying to find report matching {} in {}", pattern, getReportDirectoryPath());
+
         return findMatching(pattern)
                 .findFirst();
     }
@@ -64,6 +77,7 @@ public final class ReportFinder implements ReportPatternFinder {
     @Nonnull
     private Stream<String> getBasenameForMatchingFiles(@Nonnull String pattern) {
         if (!reportDirectory.exists()) {
+            LOGGER.warn("Report directory do not exsists {}", getReportDirectoryPath());
             return Stream.empty();
         }
 
@@ -73,15 +87,19 @@ public final class ReportFinder implements ReportPatternFinder {
         scanner.scan();
 
         String[] basenameForFiles = scanner.getIncludedFiles();
-        if (basenameForFiles.length == 0) {
+        int numberOfFiles = basenameForFiles.length;
+
+        if (numberOfFiles == 0) {
+            LOGGER.debug("No report(s) matching {} was found in {}", pattern, getReportDirectoryPath());
             return Stream.empty();
         }
 
+        LOGGER.debug("Found {} report(s) matching {} in {}", numberOfFiles, pattern, getReportDirectoryPath());
         return Arrays.stream(basenameForFiles);
     }
 
     @Nonnull
     private Function<String, Path> prependBaseDirectoryPath() {
-        return filename -> Paths.get(reportDirectory.getAbsolutePath(), filename);
+        return filename -> Paths.get(getReportDirectoryPath(), filename);
     }
 }
