@@ -30,4 +30,6 @@ allprojects {
             html.enabled false
         }
     }
+
+    test.finalizedBy jacocoTestReport
 }
