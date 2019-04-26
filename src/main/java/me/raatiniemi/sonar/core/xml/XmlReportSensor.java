@@ -42,6 +42,10 @@ public abstract class XmlReportSensor extends ReportSensor {
     protected final Optional<DocumentBuilder> createDocumentBuilder() {
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            factory.setXIncludeAware(false);
+            factory.setExpandEntityReferences(false);
 
             return Optional.of(factory.newDocumentBuilder());
         } catch (ParserConfigurationException e) {
