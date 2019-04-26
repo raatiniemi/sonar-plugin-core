@@ -19,7 +19,7 @@ repositories {
 }
 ```
 
-And, then you need to declare it as a dependency using `compile 'me.raatiniemi.sonar:core:0.0.1'`.
+And, then you need to declare it as a dependency using `compile 'me.raatiniemi.sonar:core:$latestVersion'`.
 
 *Dependency examples are using Gradle, for additional dependency options you can checkout
 [sonar-plugin-core at bintray](https://bintray.com/raatiniemi/maven/sonar-plugin-core).*
